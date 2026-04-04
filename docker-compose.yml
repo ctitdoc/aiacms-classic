@@ -1,0 +1,39 @@
+services:
+  app:
+    build:
+      context: ./app
+    container_name: aiacms_classic_app
+    ports:
+      - "8080:80"
+    environment:
+      APP_ENV: ${APP_ENV}
+      APP_VERSION: ${APP_VERSION}
+      APP_NAME: ${APP_NAME}
+      APP_TITLE: ${APP_TITLE}
+      CMS_BASE_URL: ${CMS_BASE_URL}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./app/public:/var/www/html/public
+      - ./app/src:/var/www/html/src
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: mariadb:11
+    container_name: aiacms_classic_db
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+    volumes:
+      - aiacms_classic_mariadb_data:/var/lib/mysql
+    restart: unless-stopped
+
+volumes:
+  aiacms_classic_mariadb_data:
