@@ -288,8 +288,27 @@ function mockLinks(string $id): array
 function saveMockProcessResult(string $id, string $type, string $title, array $links, ?string $xml, ?string $html): void
 {
     $stmt = db()->prepare(
-        'REPLACE INTO mock_process_results (process_id, process_type, title, links_json, xml_payload, html_payload)
-         VALUES (:process_id, :process_type, :title, :links_json, :xml_payload, :html_payload)'
+        'INSERT INTO mock_process_results (
+    process_id,
+    process_type,
+    title,
+    links_json,
+    xml_payload,
+    html_payload
+) VALUES (
+    :process_id,
+    :process_type,
+    :title,
+    :links_json,
+    :xml_payload,
+    :html_payload
+)
+ON DUPLICATE KEY UPDATE
+    process_type = VALUES(process_type),
+    title = VALUES(title),
+    links_json = VALUES(links_json),
+    xml_payload = VALUES(xml_payload),
+    html_payload = VALUES(html_payload);'
     );
 
     $stmt->execute([
