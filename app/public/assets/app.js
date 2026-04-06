@@ -213,6 +213,7 @@
       state.page = 1;
       recomputeDocuments();
       renderDocumentsView();
+      renderDocumentControls();
     });
 
     root.querySelector('#documents-features')?.addEventListener('change', (event) => {
