@@ -256,6 +256,33 @@
     });
   }
 
+  function bindDocActions(containerElement) {
+    containerElement.querySelectorAll('select[data-action-select]').forEach((select) => {
+        select.addEventListener('change', (event) => {
+          const href = event.target.value;
+          if (href) {
+            window.open(href, '_blank', 'noopener,noreferrer');
+          }
+          event.target.value = '';
+        });
+      });
+
+    containerElement.querySelectorAll('[data-delete-id]').forEach((link) => {
+        link.addEventListener('click', async (event) => {
+          event.preventDefault();
+          const id = link.getAttribute('data-delete-id') || '';
+          if (!window.confirm(`Delete ${id} ?`)) return;
+          await apiPost('/api/delete-document', { id });
+          state.documents = state.documents.filter((doc) => doc.id !== id);
+          state.availableFeatures = collectAvailableFeatures(state.documents);
+          state.page = 1;
+          recomputeDocuments();
+          renderDocumentControls();
+          renderDocumentsView();
+        });
+      });
+  }
+
   function renderDocumentControls() {
     const sortButton = root.querySelector('#documents-sort-toggle');
     if (sortButton) {
@@ -315,30 +342,7 @@
         list.innerHTML = state.pageDocs.map((doc) => cardDocument(doc, true)).join('');
       }
 
-      list.querySelectorAll('select[data-action-select]').forEach((select) => {
-        select.addEventListener('change', (event) => {
-          const href = event.target.value;
-          if (href) {
-            window.open(href, '_blank', 'noopener,noreferrer');
-          }
-          event.target.value = '';
-        });
-      });
-
-      list.querySelectorAll('[data-delete-id]').forEach((link) => {
-        link.addEventListener('click', async (event) => {
-          event.preventDefault();
-          const id = link.getAttribute('data-delete-id') || '';
-          if (!window.confirm(`Delete ${id} ?`)) return;
-          await apiPost('/api/delete-document', { id });
-          state.documents = state.documents.filter((doc) => doc.id !== id);
-          state.availableFeatures = collectAvailableFeatures(state.documents);
-          state.page = 1;
-          recomputeDocuments();
-          renderDocumentControls();
-          renderDocumentsView();
-        });
-      });
+      bindDocActions(list);
     }
 
     const pageLabel = root.querySelector('#documents-page-label');
@@ -656,7 +660,9 @@
     }
 
     root.innerHTML = `${pageHeader('Result', 'Écran résultat')}${bodyHtml}`;
-
+    if (generatedDocument) {
+      bindDocActions(root);
+    }
     root.querySelector('#result-back')?.addEventListener('click', () => window.history.back());
     root.querySelector('#result-delete')?.addEventListener('click', () => {
       const status = root.querySelector('#result-status');
