@@ -1,4 +1,8 @@
 <?php
+/*
+ * ce script est obsolete: il serveit comme smoke test initial pour vérifier le bon setup des divers middelewae: Marai DB etc...
+ * [TODO] script obsolete à supprimer du repo dans la prochaine itération
+ */
 declare(strict_types=1);
 
 function envOrFail(string $name): string {
